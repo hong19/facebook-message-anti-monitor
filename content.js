@@ -7,11 +7,16 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 			
 			var targetName = message.target;
 			
-
-			//after document-load
-			$("a.titlebarText:contains('" + targetName + "')").bind('DOMSubtreeModified', test( event , targetName ) );
-			//$("a.titlebarText:contains('" + targetName + "')").attr( "aria-level" , "2");
+			
+			var mainNode;
+			mainNode = $("a.titlebarText:contains('" + targetName + "')").parents( ".fbNubFlyoutInner");
+			console.log( mainNode );
+			mainNode.bind('DOMNodeInsertedIntoDocument', { "targetName" : targetName } ,  DOMModificationHandler );
+			//$("a.titlebarText:contains('" + targetName + "')").bind('DOMNodeInsertedIntoDocument', { "targetName" : targetName } ,  DOMModificationHandler );
+			console.log( $("a.titlebarText:contains('" + targetName + "')") );
+			
 			replaceTheName( targetName );
+			
 		
 		break;
 	}
@@ -24,21 +29,24 @@ function replaceTheName( targetName ){
 }
 
 function DOMModificationHandler( event ){
+	console.log( "DOMModificationHandler");
+	console.log( $(this));
 	$(this).unbind();
-	 
-	 //var message = "The value of the " + eventObj.attrName + " attribute has been changed from " + eventObj.prevValue + " to " + eventObj.newValue + ".";
-	//console.log( message );
-	
+	 /*
+	var message = "The value of the " + event.attrName + " attribute has been changed from " + event.prevValue + " to " + event.newValue + ".";
+	console.log( message );
+	*/
 	setTimeout(function(){
 		replaceTheName( event.data.targetName );
-		$(this).bind('DOMAttrModified', { "targetName": targetName } ,DOMModificationHandler() );
+		$(this).bind('DOMCharacterDataModified', { "targetName": event.data.targetName } ,DOMModificationHandler );
 	},1000);
 }
 
 
-
-function test ( event , targetName ){
-	console.log( "test event trigger" );
-	console.log( "target: " +  targetName );
+/*
+function test ( event  ){
+	console.log( "test event trigger 1" );
+	console.log( "target: " +  event.data.targetName  );
 	console.log( event );			
 }
+*/
