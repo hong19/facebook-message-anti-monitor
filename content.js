@@ -6,17 +6,28 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 			console.log("content js  target:" + message.target );
 			
 			var targetName = message.target;
-			
-			
+		
 			var mainNode;
 			mainNode = $("a.titlebarText:contains('" + targetName + "')").parents( ".fbNubFlyoutInner").find("div[data-reactid]");
-			console.log( mainNode );
+			console.log( mainNode[0] );
+			
+			//replace the name and picture
 			replaceTheName( targetName );
 			
-			mainNode.bind('DOMNodeInserted.event1', { "targetName" : targetName } ,  DOMModificationHandler );
+			
+			var observer = new MutationObserver( DOMModificationHandler );
+			// conmfiguration of teh observer
+			observer.targetName = targetName;
+			var config = { attributes: true, childList: true, characterData: true };
+			
+			observer.observe( mainNode[0] , config );
+			
+			
+			//mainNode.bind('DOMNodeInserted.event1', { "targetName" : targetName } ,  DOMModificationHandler );
 			//$("a.titlebarText:contains('" + targetName + "')").bind('DOMNodeInsertedIntoDocument', { "targetName" : targetName } ,  DOMModificationHandler );
 			//console.log( $("a.titlebarText:contains('" + targetName + "')") );
-			
+				
+				
 		
 		break;
 	}
@@ -28,20 +39,14 @@ function replaceTheName( targetName ){
 	$("[aria-label$='" + targetName + "'] img").attr( "src","https://fbcdn-profile-a.akamaihd.net/hprofile-ak-prn2/t1.0-1/p40x40/1891065_10203713186696473_1228623972_t.jpg" );
 }
 
-function DOMModificationHandler( event ){
+function DOMModificationHandler(  ){
 	console.log( "DOMModificationHandler");
 	console.log( $(this));
-	console.log( "fired event:"  );
-	console.log( event );
-	$(this).unbind();
-	 /*
-	var message = "The value of the " + event.attrName + " attribute has been changed from " + event.prevValue + " to " + event.newValue + ".";
-	console.log( message );
-	*/
+	
 	
 	setTimeout(function(){
-		replaceTheName( event.data.targetName );
-		$(this).bind('DOMNodeInserted.event1', { "targetName": event.data.targetName } ,DOMModificationHandler );
+		// can't pass parameter 
+		replaceTheName( $(this).targetName );
 	},10);
 }
 
