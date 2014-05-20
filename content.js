@@ -9,13 +9,13 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 			
 			
 			var mainNode;
-			mainNode = $("a.titlebarText:contains('" + targetName + "')").parents( ".fbNubFlyoutInner");
+			mainNode = $("a.titlebarText:contains('" + targetName + "')").parents( ".fbNubFlyoutInner").find("div[data-reactid]");
 			console.log( mainNode );
-			mainNode.bind('DOMNodeInsertedIntoDocument', { "targetName" : targetName } ,  DOMModificationHandler );
-			//$("a.titlebarText:contains('" + targetName + "')").bind('DOMNodeInsertedIntoDocument', { "targetName" : targetName } ,  DOMModificationHandler );
-			console.log( $("a.titlebarText:contains('" + targetName + "')") );
-			
 			replaceTheName( targetName );
+			
+			mainNode.bind('DOMNodeInserted.event1', { "targetName" : targetName } ,  DOMModificationHandler );
+			//$("a.titlebarText:contains('" + targetName + "')").bind('DOMNodeInsertedIntoDocument', { "targetName" : targetName } ,  DOMModificationHandler );
+			//console.log( $("a.titlebarText:contains('" + targetName + "')") );
 			
 		
 		break;
@@ -31,15 +31,18 @@ function replaceTheName( targetName ){
 function DOMModificationHandler( event ){
 	console.log( "DOMModificationHandler");
 	console.log( $(this));
+	console.log( "fired event:"  );
+	console.log( event );
 	$(this).unbind();
 	 /*
 	var message = "The value of the " + event.attrName + " attribute has been changed from " + event.prevValue + " to " + event.newValue + ".";
 	console.log( message );
 	*/
+	
 	setTimeout(function(){
 		replaceTheName( event.data.targetName );
-		$(this).bind('DOMCharacterDataModified', { "targetName": event.data.targetName } ,DOMModificationHandler );
-	},1000);
+		$(this).bind('DOMNodeInserted.event1', { "targetName": event.data.targetName } ,DOMModificationHandler );
+	},10);
 }
 
 
