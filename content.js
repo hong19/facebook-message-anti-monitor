@@ -6,13 +6,13 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 			//console.log("content js  target:" + message.target );
 			
 			var targetName = message.target;
-		
+			var targetNameNew = message.targetN;
 			var mainNode;
 			mainNode = $("a.titlebarText:contains('" + targetName + "')").parents( ".fbNubFlyoutInner").find("div[data-reactid]");
 			//console.log( mainNode[0] );
 			
 			//replace the name and picture
-			replaceTheName( targetName );
+			replaceTheName( targetName , targetNameNew );
 			
 			
 			
@@ -20,6 +20,7 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 			var observer = new MutationObserver( DOMModificationHandler );
 			// conmfiguration of teh observer
 			observer.targetName = targetName;
+			observer.targetNameN = targetNameNew;
 			var config = { attributes: true, childList: true, characterData: true };
 			
 			observer.observe( mainNode[0] , config );
@@ -39,11 +40,11 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 	}
 });
 
-function replaceTheName( targetName ){
+function replaceTheName( targetName  , targetNameNew ){
 	console.log("replace " + targetName );
-	$("a.titlebarText:contains('" + targetName + "')").html("Anonymous");
+	$("a.titlebarText:contains('" + targetName + "')").html( targetNameNew );
 	$("[aria-label$='" + targetName + "'] img").attr( "src","https://fbcdn-profile-a.akamaihd.net/hprofile-ak-prn2/t1.0-1/p40x40/1891065_10203713186696473_1228623972_t.jpg" );
-	$("div.name:contains('" + targetName + "')").html("Anonymous");
+	$("div.name:contains('" + targetName + "')").html( targetNameNew );
 }
 
 function DOMModificationHandler(  ){
@@ -51,9 +52,9 @@ function DOMModificationHandler(  ){
 	//console.log( $(this)[0] );
 	//console.log( $(this)[0].targetName );
 	var targetName = $(this)[0].targetName;
+	var targetNameNew = $(this)[0].targetNameN;
 	
-	
-	replaceTheName( targetName );
+	replaceTheName( targetName , targetNameNew );
 	/*
 	setTimeout(function(){
 		// can't pass parameter 

@@ -34,7 +34,7 @@ chrome.extension.onConnect.addListener(function (port) {
 // send a message to the content script
 function colorDivs( message ) {
 	chrome.tabs.getSelected(null, function(tab){
-	    chrome.tabs.sendMessage(tab.id, {type: "colors-div", target: message.target});
+	    chrome.tabs.sendMessage(tab.id, {type: "colors-div", target: message.target , targetN: message.targetN });
 	    // setting a badge
 		chrome.browserAction.setBadgeText({text: "red!"});
 	});
