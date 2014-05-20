@@ -39,3 +39,4 @@ function colorDivs( message ) {
 		chrome.browserAction.setBadgeText({text: "red!"});
 	});
 }
+
