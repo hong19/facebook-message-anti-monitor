@@ -79,6 +79,12 @@ function setObserver( targetName , targetNameNew ){
 }
 
 
+function messageGroupModifyHandler(){
+
+	console.log( "messageGroupModifyHandler");
+
+}
+
 //after document ready,  observe and replace
 $( document ).ready( function(){
 	console.log("document ready");
@@ -92,7 +98,20 @@ $( document ).ready( function(){
 		setObserver( targetName , targetNameNew );
 	});
 	
-	// class="fbNubGroup clearfix videoCallEnabled"
 	
+	var fbMessageGroup;
+	// <div class="fbNubGroup clearfix videoCallEnabled" id="u_0_5g"> 
+	fbMessageGroup = $(".fbNubGroup.clearfix.videoCallEnabled") ; 
+	console.log( fbMessageGroup[0] );
+	if( fbMessageGroup != null ){
+		console.log("observe on message group");
+		
+		var observer = new MutationObserver( messageGroupModifyHandler );
+		
+		var config = { attributes: true, childList: true, characterData: true };
+		
+		observer.observe( fbMessageGroup[0] , config );
+		
+	}
 
 });
