@@ -7,35 +7,9 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 			
 			var targetName = message.target;
 			var targetNameNew = message.targetN;
-			var mainNode;
-			mainNode = $("a.titlebarText:contains('" + targetName + "')").closest( ".fbNubFlyoutInner").find("div[data-reactid]");
-			//console.log( mainNode[0] );
 			
-			//replace the name and picture
-			replaceTheName( targetName , targetNameNew );
-			
-			
-			
-			
-			var observer = new MutationObserver( DOMModificationHandler );
-			// conmfiguration of teh observer
-			observer.targetName = targetName;
-			observer.targetNameN = targetNameNew;
-			var config = { attributes: true, childList: true, characterData: true };
-			
-			observer.observe( mainNode[0] , config );
-			console.log( "observer:");
-			console.log( observer);
-			console.log( "observer.targetName:");
-			console.log( observer.targetName );
-			
-			
-			//mainNode.bind('DOMNodeInserted.event1', { "targetName" : targetName } ,  DOMModificationHandler );
-			//$("a.titlebarText:contains('" + targetName + "')").bind('DOMNodeInsertedIntoDocument', { "targetName" : targetName } ,  DOMModificationHandler );
-			//console.log( $("a.titlebarText:contains('" + targetName + "')") );
-				
-				
-		
+			setObserver( targetName , targetNameNew );
+
 		break;
 	}
 });
@@ -44,6 +18,9 @@ function replaceTheName( targetName  , targetNameNew ){
 	console.log("replace " + targetName );
 	var messageBoxInner;
 	var userNameNode = $("a.titlebarText:contains('" + targetName + "')");
+	if( userNameNode == null ){
+		console.log("null target");
+	}
 	userNameNode.html( targetNameNew );
 	
 	messageBoxInner = userNameNode.closest(".fbNubFlyoutInner");
@@ -67,16 +44,55 @@ function DOMModificationHandler(  ){
 	},1);
 	*/
 }
-/*
+
+//set observer
+function setObserver( targetName , targetNameNew ){
+
+	var mainNode;
+	mainNode = $("a.titlebarText:contains('" + targetName + "')").closest( ".fbNubFlyoutInner").find("div[data-reactid]");
+	//console.log( mainNode[0] );
+	
+	if( mainNode[0] != null ){
+					
+		//replace the name and picture
+		replaceTheName( targetName , targetNameNew );
+		
+		var observer = new MutationObserver( DOMModificationHandler );
+		// conmfiguration of teh observer
+		observer.targetName = targetName;
+		observer.targetNameN = targetNameNew;
+		var config = { attributes: true, childList: true, characterData: true };
+		
+		observer.observe( mainNode[0] , config );
+		console.log( "observer:");
+		console.log( observer);
+		console.log( "observer.targetName:");
+		console.log( observer.targetName );
+		
+	}else{
+		console.log("null target");
+	}
+
+
+
+
+}
+
+
 //after document ready,  observe and replace
 $( document ).ready( function(){
-	var target1;
-	chrome.storage.local.get( "target", function( storage_item ){
+	console.log("document ready");
+	var targetName , targetNameNew;
+	
+	chrome.storage.local.get(  [ "target" , "targetN"] , function( storage_item ){
 		
-		target1 = storage_item.target;
-		console.log(  target1  );
-		replaceTheName( target1 );
+		targetName = storage_item.target ;
+		targetNameNew = storage_item.targetN ;
+		
+		setObserver( targetName , targetNameNew );
 	});
 	
+	// class="fbNubGroup clearfix videoCallEnabled"
+	
+
 });
-*/
