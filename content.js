@@ -8,7 +8,7 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 			var targetName = message.target;
 			var targetNameNew = message.targetN;
 			var mainNode;
-			mainNode = $("a.titlebarText:contains('" + targetName + "')").parents( ".fbNubFlyoutInner").find("div[data-reactid]");
+			mainNode = $("a.titlebarText:contains('" + targetName + "')").closest( ".fbNubFlyoutInner").find("div[data-reactid]");
 			//console.log( mainNode[0] );
 			
 			//replace the name and picture
@@ -42,8 +42,13 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 
 function replaceTheName( targetName  , targetNameNew ){
 	console.log("replace " + targetName );
-	$("a.titlebarText:contains('" + targetName + "')").html( targetNameNew );
-	$("[aria-label$='" + targetName + "'] img").attr( "src","https://fbcdn-profile-a.akamaihd.net/hprofile-ak-prn2/t1.0-1/p40x40/1891065_10203713186696473_1228623972_t.jpg" );
+	var messageBoxInner;
+	var userNameNode = $("a.titlebarText:contains('" + targetName + "')");
+	userNameNode.html( targetNameNew );
+	
+	messageBoxInner = userNameNode.closest(".fbNubFlyoutInner");
+	var img_src = chrome.extension.getURL("photos/fullBlack.jpg");
+	messageBoxInner.find("[ data-hover='tooltip'] img").attr( "src", img_src ); // facebook 偷改版
 	$("div.name:contains('" + targetName + "')").html( targetNameNew );
 }
 

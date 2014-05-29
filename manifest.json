@@ -32,6 +32,11 @@
   
   "permissions": [
      "storage"
-  ]
+  ],
     
+	"web_accessible_resources": [
+		"photos/*.jpg"
+	]
+	
+	
 }
