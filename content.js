@@ -9,7 +9,7 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 			var targetNameNew = message.targetN;
 			
 			setObserver( targetName , targetNameNew );
-
+			window.location.reload();
 		break;
 	}
 });
