@@ -3,53 +3,121 @@
 chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 	switch(message.type) {
 		case "colors-div":
-			console.log("content js  target:" + message.target );
+			//console.log("content js  target:" + message.target );
 			
 			var targetName = message.target;
+			var targetNameNew = message.targetN;
 			
-			
-			var mainNode;
-			mainNode = $("a.titlebarText:contains('" + targetName + "')").parents( ".fbNubFlyoutInner").find("div[data-reactid]");
-			console.log( mainNode );
-			replaceTheName( targetName );
-			
-			mainNode.bind('DOMNodeInserted.event1', { "targetName" : targetName } ,  DOMModificationHandler );
-			//$("a.titlebarText:contains('" + targetName + "')").bind('DOMNodeInsertedIntoDocument', { "targetName" : targetName } ,  DOMModificationHandler );
-			//console.log( $("a.titlebarText:contains('" + targetName + "')") );
-			
-		
+			setObserver( targetName , targetNameNew );
+			window.location.reload();
 		break;
 	}
 });
 
-function replaceTheName( targetName ){
+function replaceTheName( targetName  , targetNameNew ){
 	console.log("replace " + targetName );
-	$("a.titlebarText:contains('" + targetName + "')").html("Anonymous");
-	$("[aria-label$='" + targetName + "'] img").attr( "src","https://fbcdn-profile-a.akamaihd.net/hprofile-ak-prn2/t1.0-1/p40x40/1891065_10203713186696473_1228623972_t.jpg" );
+	var messageBoxInner;
+	var userNameNode = $("a.titlebarText:contains('" + targetName + "')");
+	if( userNameNode == null ){
+		console.log("null target");
+	}
+	userNameNode.html( targetNameNew );
+	
+	messageBoxInner = userNameNode.closest(".fbNubFlyoutInner");
+	var img_src = chrome.extension.getURL("photos/fullBlack.jpg");
+	messageBoxInner.find("[ data-hover='tooltip'] img").attr( "src", img_src ); // facebook 偷改版
+	$("div.name:contains('" + targetName + "')").html( targetNameNew );
 }
 
-function DOMModificationHandler( event ){
+function DOMModificationHandler(  ){
 	console.log( "DOMModificationHandler");
-	console.log( $(this));
-	console.log( "fired event:"  );
-	console.log( event );
-	$(this).unbind();
-	 /*
-	var message = "The value of the " + event.attrName + " attribute has been changed from " + event.prevValue + " to " + event.newValue + ".";
-	console.log( message );
-	*/
+	//console.log( $(this)[0] );
+	//console.log( $(this)[0].targetName );
+	var targetName = $(this)[0].targetName;
+	var targetNameNew = $(this)[0].targetNameN;
+	
+	//replaceTheName( targetName , targetNameNew );
 	
 	setTimeout(function(){
-		replaceTheName( event.data.targetName );
-		$(this).bind('DOMNodeInserted.event1', { "targetName": event.data.targetName } ,DOMModificationHandler );
+		// can't pass parameter 
+		replaceTheName( targetName , targetNameNew );
 	},10);
+	
+}
+
+//set observer
+function setObserver( targetName , targetNameNew ){
+
+	var mainNode;
+	mainNode = $("a.titlebarText:contains('" + targetName + "')").closest( ".fbNubFlyoutInner").find("div[data-reactid]");
+	//console.log( mainNode[0] );
+	
+	if( mainNode[0] != null ){
+					
+		//replace the name and picture
+		replaceTheName( targetName , targetNameNew );
+		
+		var observer = new MutationObserver( DOMModificationHandler );
+		// conmfiguration of teh observer
+		observer.targetName = targetName;
+		observer.targetNameN = targetNameNew;
+		var config = { attributes: true, childList: true, characterData: true };
+		
+		observer.observe( mainNode[0] , config );
+		console.log( "observer:");
+		console.log( observer);
+		console.log( "observer.targetName:");
+		console.log( observer.targetName );
+		
+	}else{
+		console.log("null target");
+	}
+
+
+
+
 }
 
 
-/*
-function test ( event  ){
-	console.log( "test event trigger 1" );
-	console.log( "target: " +  event.data.targetName  );
-	console.log( event );			
+function messageGroupModifyHandler(){
+
+	console.log( "messageGroupModifyHandler");
+	
+	var targetName = $(this)[0].targetName;
+	var targetNameNew = $(this)[0].targetNameNew;
+	setObserver( targetName , targetNameNew );
+	
 }
-*/
+
+//after document ready,  observe and replace
+$( document ).ready( function(){
+	console.log("document ready");
+	var targetName , targetNameNew;
+	
+	chrome.storage.local.get(  [ "target" , "targetN"] , function( storage_item ){
+		
+		targetName = storage_item.target ;
+		targetNameNew = storage_item.targetN ;
+		
+		setObserver( targetName , targetNameNew );
+		
+		var fbMessageGroup;
+		// <div class="fbNubGroup clearfix videoCallEnabled" id="u_0_5g"> 
+		fbMessageGroup = $(".fbNubGroup.clearfix.videoCallEnabled") ; 
+		console.log( fbMessageGroup[0] );
+		if( fbMessageGroup != null ){
+			console.log("observe on message group");
+			
+			var observer = new MutationObserver( messageGroupModifyHandler );
+			var config = { attributes: true, childList: true, characterData: true };
+			
+			observer.targetName = targetName;
+			observer.targetNameNew = targetNameNew;
+			
+			observer.observe( fbMessageGroup[0] , config );
+			
+		}
+		
+	});
+
+});
