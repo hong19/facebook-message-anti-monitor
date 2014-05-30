@@ -36,13 +36,13 @@ function DOMModificationHandler(  ){
 	var targetName = $(this)[0].targetName;
 	var targetNameNew = $(this)[0].targetNameN;
 	
-	replaceTheName( targetName , targetNameNew );
-	/*
+	//replaceTheName( targetName , targetNameNew );
+	
 	setTimeout(function(){
 		// can't pass parameter 
-		replaceTheName( targetName );
-	},1);
-	*/
+		replaceTheName( targetName , targetNameNew );
+	},10);
+	
 }
 
 //set observer
@@ -82,7 +82,11 @@ function setObserver( targetName , targetNameNew ){
 function messageGroupModifyHandler(){
 
 	console.log( "messageGroupModifyHandler");
-
+	
+	var targetName = $(this)[0].targetName;
+	var targetNameNew = $(this)[0].targetNameNew;
+	setObserver( targetName , targetNameNew );
+	
 }
 
 //after document ready,  observe and replace
@@ -96,22 +100,24 @@ $( document ).ready( function(){
 		targetNameNew = storage_item.targetN ;
 		
 		setObserver( targetName , targetNameNew );
+		
+		var fbMessageGroup;
+		// <div class="fbNubGroup clearfix videoCallEnabled" id="u_0_5g"> 
+		fbMessageGroup = $(".fbNubGroup.clearfix.videoCallEnabled") ; 
+		console.log( fbMessageGroup[0] );
+		if( fbMessageGroup != null ){
+			console.log("observe on message group");
+			
+			var observer = new MutationObserver( messageGroupModifyHandler );
+			var config = { attributes: true, childList: true, characterData: true };
+			
+			observer.targetName = targetName;
+			observer.targetNameNew = targetNameNew;
+			
+			observer.observe( fbMessageGroup[0] , config );
+			
+		}
+		
 	});
-	
-	
-	var fbMessageGroup;
-	// <div class="fbNubGroup clearfix videoCallEnabled" id="u_0_5g"> 
-	fbMessageGroup = $(".fbNubGroup.clearfix.videoCallEnabled") ; 
-	console.log( fbMessageGroup[0] );
-	if( fbMessageGroup != null ){
-		console.log("observe on message group");
-		
-		var observer = new MutationObserver( messageGroupModifyHandler );
-		
-		var config = { attributes: true, childList: true, characterData: true };
-		
-		observer.observe( fbMessageGroup[0] , config );
-		
-	}
 
 });
