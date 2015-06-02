@@ -8,11 +8,14 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 			var targetName = message.target;
 			var targetNameNew = message.targetN;
 			
-			setObserver( targetName , targetNameNew );
-			window.location.reload();
+			replaceTheName( targetName, targetNameNew );
+			
+			//setObserver( targetName , targetNameNew );
+			//window.location.reload();
 		break;
 	}
 });
+
 
 function replaceTheName( targetName  , targetNameNew ){
 	console.log("replace " + targetName );
@@ -23,11 +26,17 @@ function replaceTheName( targetName  , targetNameNew ){
 	}
 	userNameNode.html( targetNameNew );
 	
+	userNameNode.hide();
+	var fakeNameDom = "<a class='titlebarText' >" + targetNameNew + "</a>";
+	userNameNode.parent().append( fakeNameDom );
+
+
 	messageBoxInner = userNameNode.closest(".fbNubFlyoutInner");
 	var img_src = chrome.extension.getURL("photos/fullBlack.jpg");
 	messageBoxInner.find("[ data-hover='tooltip'] img").attr( "src", img_src ); // facebook 偷改版
 	$("div.name:contains('" + targetName + "')").html( targetNameNew );
 }
+
 
 function DOMModificationHandler(  ){
 	console.log( "DOMModificationHandler");
@@ -45,7 +54,7 @@ function DOMModificationHandler(  ){
 	
 }
 
-//set observer
+//set an observer to monitor the change of message div 
 function setObserver( targetName , targetNameNew ){
 
 	var mainNode;
@@ -73,9 +82,6 @@ function setObserver( targetName , targetNameNew ){
 		console.log("null target");
 	}
 
-
-
-
 }
 
 
@@ -92,15 +98,20 @@ function messageGroupModifyHandler(){
 //after document ready,  observe and replace
 $( document ).ready( function(){
 	console.log("document ready");
+
 	var targetName , targetNameNew;
 	
+	//get the target from local storage 
 	chrome.storage.local.get(  [ "target" , "targetN"] , function( storage_item ){
 		
 		targetName = storage_item.target ;
 		targetNameNew = storage_item.targetN ;
 		
-		setObserver( targetName , targetNameNew );
+		//setObserver( targetName , targetNameNew );
 		
+
+		/*
+		// set an observer to monitor the message group 
 		var fbMessageGroup;
 		// <div class="fbNubGroup clearfix videoCallEnabled" id="u_0_5g"> 
 		fbMessageGroup = $(".fbNubGroup.clearfix.videoCallEnabled") ; 
@@ -117,7 +128,7 @@ $( document ).ready( function(){
 			observer.observe( fbMessageGroup[0] , config );
 			
 		}
-		
+		*/
 	});
 
 });
