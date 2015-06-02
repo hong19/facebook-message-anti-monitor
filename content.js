@@ -1,40 +1,109 @@
+var cont = {};
+// global variables:
+// userNameNode
+// messageBoxInner
 
 
+//listen to backgound 
 chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 	switch(message.type) {
-		case "colors-div":
-			//console.log("content js  target:" + message.target );
+		case "replaceTheName":
+			console.log("content js  target:" + message.target );
 			
 			var targetName = message.target;
 			var targetNameNew = message.targetN;
 			
-			replaceTheName( targetName, targetNameNew );
+			replaceTheNameMain( targetName, targetNameNew );
 			
 			//setObserver( targetName , targetNameNew );
-			//window.location.reload();
 		break;
 	}
 });
 
+// replace the name and img ,etc
+function replaceTheNameMain( targetName  , targetNameNew ){
+	
+		//find the dom with target name
+	cont.userNameNode = findTheDomWithName( targetName );
+	cont.userNameNode.hide();
 
-function replaceTheName( targetName  , targetNameNew ){
-	console.log("replace " + targetName );
-	var messageBoxInner;
+	//append the dom with fake name 
+	appendFakeNameDom( targetNameNew );
+	
+	//find the dom fo messageBoxInner
+	cont.messageBoxInner = cont.userNameNode.closest(".fbNubFlyoutInner");
+	
+	//replace the img source
+	replaceImgHeadShot();
+		
+	//replace the name when message box minimizes
+	$("div.name:contains('" + targetName + "')").html( targetNameNew );
+
+	//set the observer to observe the messageBoxInner
+	//when the messageBoxInner changes, replace the img again
+	setObserverOfMessageBoxInner();
+
+}
+
+//find the dom with target name
+function findTheDomWithName( targetName ){
+
 	var userNameNode = $("a.titlebarText:contains('" + targetName + "')");
 	if( userNameNode == null ){
 		console.log("null target");
 	}
-	userNameNode.html( targetNameNew );
-	
-	userNameNode.hide();
+	return userNameNode; 
+}
+
+//append the dom with fake name
+function appendFakeNameDom( targetNameNew ){
+
 	var fakeNameDom = "<a class='titlebarText' >" + targetNameNew + "</a>";
-	userNameNode.parent().append( fakeNameDom );
+	cont.userNameNode.parent().append( fakeNameDom );
 
+}
 
-	messageBoxInner = userNameNode.closest(".fbNubFlyoutInner");
+function replaceImgHeadShot(){
+
 	var img_src = chrome.extension.getURL("photos/fullBlack.jpg");
-	messageBoxInner.find("[ data-hover='tooltip'] img").attr( "src", img_src ); // facebook 偷改版
-	$("div.name:contains('" + targetName + "')").html( targetNameNew );
+	cont.messageBoxInner.find("[ data-hover='tooltip'] img").attr( "src", img_src ); 
+	
+}
+
+
+function setObserverOfMessageBoxInner(){
+	console.log("setObserverOfMessageBoxInner");
+	var observeNode;
+	observeNode = cont.messageBoxInner.find("div.conversation");
+
+	console.log( observeNode[0] );
+
+	cont.observer = new MutationObserver( DomModifyHandlerMessageBoxInner );
+	// conmfiguration of the observer
+	var config = { childList: true, subtree: true };
+	
+	//observeNode[0], the first object of jQuery object is the DOM object
+	//Object.observe( observeNode[0] , DomModifyHandlerMessageBoxInner );
+	cont.observer.observe( observeNode[0] ,config );
+
+}
+
+function DomModifyHandlerMessageBoxInner( mutations ){
+	console.log("DomModifyHandlerMessageBoxInner");
+	
+	mutations.forEach(function(mutation) {
+    	console.log(mutation.type);
+  	});    
+
+	replaceImgHeadShot();
+}
+
+
+//=========== below is old codes ===============
+
+
+function setObserverOfMessageBoxInner( ){
+
 }
 
 
@@ -53,6 +122,9 @@ function DOMModificationHandler(  ){
 	},10);
 	
 }
+
+
+
 
 //set an observer to monitor the change of message div 
 function setObserver( targetName , targetNameNew ){
