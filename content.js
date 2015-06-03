@@ -1,7 +1,8 @@
 var cont = {};
 // global variables:
-// userNameNode
-// messageBoxInner
+// cont.userNameNode
+// cont.messageBoxInner
+// ameOfMinimizeMessageBox
 
 
 //listen to backgound 
@@ -37,11 +38,14 @@ function replaceTheNameMain( targetName  , targetNameNew ){
 	replaceImgHeadShot();
 		
 	//replace the name when message box minimizes
-	$("div.name:contains('" + targetName + "')").html( targetNameNew );
+	cont.nameOfMinimizeMessageBox = $("div.name:contains('" + targetName + "')");
+	cont.nameOfMinimizeMessageBox.hide(); // It works, just do it.
+	appendFakeNameDomMinimize( targetNameNew );
 
 	//set the observer to observe the messageBoxInner
 	//when the messageBoxInner changes, replace the img again
 	setObserverOfMessageBoxInner();
+	//setObserverOfMessageBoxMinimize();
 
 }
 
@@ -62,6 +66,16 @@ function appendFakeNameDom( targetNameNew ){
 	cont.userNameNode.parent().append( fakeNameDom );
 
 }
+
+
+function appendFakeNameDomMinimize( targetNameNew ){
+
+	var fakeNameDom = "<div class='name fwb' >" + targetNameNew + "</div>";
+	cont.nameOfMinimizeMessageBox.parent().append( fakeNameDom );
+	
+
+}
+
 
 function replaceImgHeadShot(){
 
@@ -99,13 +113,34 @@ function DomModifyHandlerMessageBoxInner( mutations ){
 }
 
 
-//=========== below is old codes ===============
 
+//useless
+function setObserverOfMessageBoxMinimize(){
+	var observeNode;
+	observeNode = cont.userNameNode.closest(".fbNubFlyoutInner").find("div[data-reactid]");
 
-function setObserverOfMessageBoxInner( ){
+	var observer = new MutationObserver( DomModifyHandlerMessageBoxMinimize );
+	// conmfiguration of the observer
+	var config = { childList: true };
+
+	//observeNode[0], the first object of jQuery object is the DOM object
+	observer.observe( observeNode[0] ,config );
 
 }
 
+//useless
+function DomModifyHandlerMessageBoxMinimize( mutations ){
+	console.log("DomModifyHandlerMessageBoxMinimize");
+	mutations.forEach(function(mutation) {
+    	console.log(mutation.type);
+  	});    
+
+	//$("div.name:contains('" + targetName + "')").html( targetNameNew );
+	$("div.name:contains('Elly Chang')").html( "test" );
+}
+
+
+//=========== below is old codes ===============
 
 function DOMModificationHandler(  ){
 	console.log( "DOMModificationHandler");
